@@ -101,7 +101,7 @@ class AirState:
 
     def send_to_graphite(self, host: str, prefix: str = 'air.state'):
         graphyte.init(host, prefix="%s.%s" % (prefix, self._station))
-        for p in self.parameters:
+        for p in self:
             ts = p.last_update_seconds
             graphyte.send(
                 metric=p.chemicalFormula + ".pdk",
