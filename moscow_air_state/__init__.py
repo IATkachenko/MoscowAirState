@@ -11,12 +11,14 @@ class AirParameter:
     _pdk: float = 0.0
     _value: float = 0.0
     _last_update: datetime = 0
+    _chemicalFormula: str = ''
 
-    def __init__(self, name: str, norma: float, pdk: float, value: float, datetime_str: str):
+    def __init__(self, name: str, norma: float, pdk: float, value: float, datetime_str: str, chemical_formula: str):
         self._name = name
         self._norma = norma
         self._pdk = pdk
         self._value = value
+        self._chemicalFormula = chemical_formula
 
         self._last_update = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S.%f')
 
@@ -41,9 +43,14 @@ class AirParameter:
         a_timedelta = self._last_update - datetime(1900, 1, 1)
         return int(a_timedelta.total_seconds())
 
+    @property
+    def chemicalFormula(self) -> str:
+        return self._chemicalFormula
+
     def __str__(self):
-        return "%s: %.4f/%.2f (%.2f ПДК). Updated at %s" % (
+        return "%s (%s): %.4f/%.2f (%.2f ПДК). Updated at %s" % (
             self.name,
+            self.chemicalFormula,
             self.value,
             self.norma,
             self.pdk,
@@ -76,7 +83,8 @@ class AirState:
                             p['norma'],
                             p['pdk'],
                             p['modifyav'],
-                            p['dateTime']
+                            p['dateTime'],
+                            p['chemicalFormula']
                         )
                     )
                 except KeyError:
@@ -96,13 +104,13 @@ class AirState:
         for p in self.parameters:
             ts = p.last_update_seconds
             graphyte.send(
-                metric=p.name + ".pdk",
+                metric=p.chemicalFormula + ".pdk",
                 value=p.norma,
                 timestamp=ts
             )
 
             graphyte.send(
-                metric=p.name + ".value",
+                metric=p.chemicalFormula + ".value",
                 value=p.value,
                 timestamp=ts
             )
