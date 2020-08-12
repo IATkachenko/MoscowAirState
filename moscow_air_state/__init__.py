@@ -53,13 +53,16 @@ class AirParameter:
 
 class AirState:
     _parameters: List[AirParameter] = list()
+    _station: str = ''
 
-    def __init__(self):
+    def __init__(self, station: str):
+        self._station = station
+
         r = requests.post(
             'https://mosecom.mos.ru/wp-content/themes/moseco/map/station-popup.php',
             data={
                 'locale': 'ru_RU',
-                'station_name': 'Туристская',
+                'station_name': station,
                 'mapType': 'air'
             }
         )
@@ -89,7 +92,7 @@ class AirState:
         return response
 
     def send_to_graphite(self, host: str, prefix: str = 'air.state'):
-        graphyte.init(host, prefix=prefix)
+        graphyte.init(host, prefix="%s.%s" % (prefix, self._station))
         for p in self.parameters:
             ts = p.last_update_seconds
             graphyte.send(

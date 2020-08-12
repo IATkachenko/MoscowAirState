@@ -1,6 +1,6 @@
 from moscow_air_state import *
 
-s = AirState()
+s = AirState('Туристская')
 print(s)
 
 #for state in s:
